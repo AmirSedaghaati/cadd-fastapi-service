@@ -2,75 +2,102 @@
 
 A deployable REST API that wraps a computational drug discovery 
 screening pipeline. Compound descriptor retrieval, Lipinski 
-filtering, and docking result parsing are exposed as HTTP 
-endpoints, making the pipeline callable from any automation 
-tool, including n8n, without manual script execution.
+filtering, and docking result parsing, each exposed as an 
+independent HTTP endpoint, containerised with Docker, and 
+ready to integrate with any automation layer (n8n, Airflow, 
+or a direct HTTP call from your lab's data system).
+
+---
 
 ## Why this exists
 
-Most CADD pipelines live on one person's laptop. They work, 
-but they are not usable by anyone else, not callable by 
-automation workflows, and not deployable to a team environment. 
-This project packages three core screening steps as a proper 
-REST API so the pipeline can run as a service rather than a 
-manual script.
+Most CADD pipelines are local scripts. They work on the machine 
+that built them and nowhere else. When a wet-lab team needs 
+results, someone has to run the script manually, export a CSV, 
+and send it by email.
+
+This service removes that bottleneck. Each pipeline stage is an 
+API endpoint. Your automation tool calls the endpoint, gets 
+structured JSON back, and passes it to the next step — no manual 
+intervention, no environment setup on the client side.
+
+---
 
 ## Endpoints
 
-### POST /descriptors
-Accepts a list of compound names. Queries the PubChem REST API, 
-resolves names to CIDs, retrieves physicochemical descriptors 
-(MW, XLogP, TPSA, HBD, HBA, CanonicalSMILES), and returns a 
-structured JSON response. Unresolved compounds are flagged 
-explicitly rather than silently dropped.
+### POST /fetch-descriptors
+Accepts a list of compound names. Queries the PubChem REST API 
+in batch. Returns molecular weight, XLogP, TPSA, H-bond donor 
+and acceptor counts, and canonical SMILES for each compound. 
+Compounds that cannot be resolved are flagged explicitly — 
+nothing disappears silently from your dataset.
 
-### POST /filter
-Accepts descriptor data. Applies Lipinski Rule of Five filtering 
-and a configurable TPSA threshold. Returns passing and failing 
-compounds as separate lists with the applied thresholds recorded 
-in the response.
+### POST /screen-library
+Accepts a compound library as JSON. Applies Lipinski Rule of 
+Five filtering via RDKit. Returns the filtered, ranked compound 
+list. Affinity threshold is configurable per request.
 
-### POST /parse-docking
-Accepts AutoDock Vina docking results in CSV format. Ranks 
-compounds by binding affinity, applies a configurable hit 
-threshold, and returns a ranked hit list as structured JSON.
+### POST /parse-docking-results
+Accepts AutoDock Vina output as JSON. Parses binding affinities. 
+Applies a configurable hit threshold. Returns ranked hits with 
+pass/fail flags as structured JSON ready for database insertion 
+or downstream reporting.
+
+---
 
 ## Tech stack
 
-| Component | Role |
+| Layer | Technology |
 |---|---|
-| FastAPI | REST API framework |
-| Python 3.11 | Core pipeline logic |
-| pandas | Data manipulation |
-| requests | PubChem API communication |
-| RDKit | Lipinski filtering |
-| Docker | Containerisation and deployment |
-| PostgreSQL | Persistent storage of screening results |
+| API framework | FastAPI |
+| Containerisation | Docker + Docker Compose |
+| Cheminformatics | RDKit |
+| Database | PostgreSQL |
+| External data | PubChem REST API |
+| Language | Python 3.11 |
 
-## Status
+---
 
-Under active development. Endpoints are being built and 
-tested in sequence. Core descriptor retrieval and Lipinski 
-filtering are functional. Docking result parser and 
-PostgreSQL integration are in progress.
-
-## Run locally with Docker
+## Run locally
 
 ```bash
-docker build -t cadd-api .
-docker run -p 8000:8000 cadd-api
+git clone https://github.com/AmirSedaghaati/cadd-fastapi-service
+cd cadd-fastapi-service
+docker-compose up --build
 ```
 
-API documentation available at http://localhost:8000/docs 
-once the container is running.
+API will be live at http://localhost:8000
+Interactive docs at http://localhost:8000/docs
+
+---
+
+## Project status
+
+Under active development. Endpoints are being built and tested 
+against the same compound libraries used in published screening 
+work (Biochemical and Biophysical Reports, 2025 — 
+doi.org/10.1016/j.bbrep.2025.102171).
+
+Current progress:
+- [x] Repository structure and API skeleton
+- [x] /fetch-descriptors endpoint
+- [ ] /screen-library endpoint (in progress)
+- [ ] /parse-docking-results endpoint
+- [ ] Docker Compose full stack with PostgreSQL
+- [ ] Integration test suite
+
+---
 
 ## Related repositories
 
-- [pubchem-metabolite-descriptor-fetcher](https://github.com/AmirSedaghaati/pubchem-metabolite-descriptor-fetcher) — batch descriptor retrieval pipeline this API is built around
-- [vina-docking-pipeline](https://github.com/AmirSedaghaati/vina-docking-pipeline) — docking result parser this API exposes as an endpoint
+- [pubchem-metabolite-descriptor-fetcher](https://github.com/AmirSedaghaati/pubchem-metabolite-descriptor-fetcher) — batch descriptor retrieval pipeline (Python + R)
+- [vina-docking-pipeline](https://github.com/AmirSedaghaati/vina-docking-pipeline) — AutoDock Vina result parser and hit ranker
 
-## Author
+---
 
-Amir Sedaghati
-[linkedin.com/in/amir-sedaghati](https://linkedin.com/in/amir-sedaghati) · 
-[ORCID 0009-0002-6445-0329](https://orcid.org/0009-0002-6445-0329)
+## Contact
+
+Amir Sedaghati  
+aamirsedaghati@gmail.com  
+linkedin.com/in/amir-sedaghati  
+ORCID: 0009-0002-6445-0329
