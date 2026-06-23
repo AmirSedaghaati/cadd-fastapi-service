@@ -47,14 +47,14 @@ or downstream reporting.
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| API framework | FastAPI |
-| Containerisation | Docker + Docker Compose |
-| Cheminformatics | RDKit |
-| Database | PostgreSQL |
-| External data | PubChem REST API |
-| Language | Python 3.11 |
+| Layer | Technology | Status |
+|---|---|---|
+| API framework | FastAPI | ✅ in use |
+| Containerisation | Docker + Docker Compose | ✅ in use |
+| External data | PubChem REST API | ✅ in use |
+| Language | Python 3.11 | ✅ in use |
+| Cheminformatics | RDKit | 🚧 planned for `/screen-library` |
+| Database | PostgreSQL | 🚧 planned for persistence layer |
 
 ---
 
