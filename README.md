@@ -82,7 +82,7 @@ connected to, any of my published research.
 Current progress:
 - [x] Repository structure and API skeleton
 - [x] /fetch-descriptors endpoint
-- [ ] /screen-library endpoint (in progress)
+- [x] /screen-library endpoint
 - [ ] /parse-docking-results endpoint
 - [ ] Docker Compose full stack with PostgreSQL
 - [ ] Integration test suite
