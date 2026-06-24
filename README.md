@@ -73,10 +73,11 @@ Interactive docs at http://localhost:8000/docs
 
 ## Project status
 
-Under active development. Endpoints are being built and tested 
-against the same compound libraries used in published screening 
-work (Biochemical and Biophysical Reports, 2025 — 
-doi.org/10.1016/j.bbrep.2025.102171).
+Under active development. /fetch-descriptors is implemented and working.
+/screen-library and /parse-docking-results are planned (see roadmap below).
+
+This is an independent portfolio project. It was not used in, and is not
+connected to, any of my published research.
 
 Current progress:
 - [x] Repository structure and API skeleton
