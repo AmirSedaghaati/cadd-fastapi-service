@@ -73,8 +73,8 @@ Interactive docs at http://localhost:8000/docs
 
 ## Project status
 
-Under active development. /fetch-descriptors is implemented and working.
-/screen-library and /parse-docking-results are planned (see roadmap below).
+Under active development. /fetch-descriptors and /screen-library are
+implemented and working. /parse-docking-results is planned (see roadmap below).
 
 This is an independent portfolio project. It was not used in, and is not
 connected to, any of my published research.
