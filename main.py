@@ -1,14 +1,22 @@
 import logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-logger = logging.getLogger(__name__)
 import asyncio
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Request
 from pydantic import BaseModel, conlist
 from rdkit import Chem
 from rdkit.Chem import Descriptors
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+# logging Setting 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
+
+# Limiter Setting
+limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(title="CADD FastAPI Service", version="0.1.0")
+app.state.limiter = limiter
 
 PUBCHEM_BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
 PROPERTIES = [
@@ -24,8 +32,6 @@ class CompoundRequest(BaseModel):
 
 class ScreenLibraryRequest(BaseModel):
     compounds: conlist(dict, min_length=1, max_length=200)
-    # each compound dict must have a "name" key and a "smiles" key, e.g.:
-    # {"name": "Aspirin", "smiles": "CC(=O)OC1=CC=CC=C1C(=O)O"}
 
 async def fetch_cid_by_name(client: httpx.AsyncClient, name: str) -> int | None:
     url = f"{PUBCHEM_BASE}/compound/name/{httpx.QueryParams({'_': name})['_']}/cids/JSON"
@@ -48,12 +54,19 @@ async def _resolve_one(client: httpx.AsyncClient, name: str, semaphore: asyncio.
     async with semaphore:
         cid = await fetch_cid_by_name(client, name)
         await asyncio.sleep(REQUEST_DELAY_SECONDS)
+        
         if cid is None:
+            logger.info(f"Compound not found: {name}")
             return {"compound_name": name, "CID": None, "fetch_status": "not_found"}
+        
         props = await fetch_properties_by_cid(client, cid)
         await asyncio.sleep(REQUEST_DELAY_SECONDS)
+        
         if not props:
+            logger.warning(f"Failed to fetch properties for CID: {cid} ({name})")
             return {"compound_name": name, "CID": cid, "fetch_status": "property_error"}
+        
+        logger.info(f"Successfully resolved: {name} (CID: {cid})")
         return {"compound_name": name, "CID": cid, "fetch_status": "ok", **props}
 
 @app.get("/")
@@ -61,14 +74,16 @@ def root():
     return {"service": "CADD FastAPI Service", "status": "running"}
 
 @app.post("/fetch-descriptors")
-async def fetch_descriptors(request: CompoundRequest):
+@limiter.limit("10/minute")
+async def fetch_descriptors(request: Request, compound_data: CompoundRequest):
+    logger.info(f"API Request: /fetch-descriptors for {len(compound_data.compound_names)} items")
     semaphore = asyncio.Semaphore(5)  
     async with httpx.AsyncClient() as client:
         results = await asyncio.gather(
-            *(_resolve_one(client, name, semaphore) for name in request.compound_names)
+            *(_resolve_one(client, name, semaphore) for name in compound_data.compound_names)
         )
     ok_count = sum(1 for r in results if r["fetch_status"] == "ok")
-    return {"total_requested": len(request.compound_names), "total_resolved": ok_count, "results": results}
+    return {"total_requested": len(compound_data.compound_names), "total_resolved": ok_count, "results": results}
 
 def _lipinski_check(smiles: str) -> dict:
     mol = Chem.MolFromSmiles(smiles)
@@ -89,9 +104,11 @@ def _lipinski_check(smiles: str) -> dict:
     }
 
 @app.post("/screen-library")
-def screen_library(request: ScreenLibraryRequest):
+@limiter.limit("10/minute")
+def screen_library(request: Request, library_data: ScreenLibraryRequest):
+    logger.info(f"API Request: /screen-library for {len(library_data.compounds)} compounds")
     results = []
-    for compound in request.compounds:
+    for compound in library_data.compounds:
         name = compound.get("name", "unknown")
         smiles = compound.get("smiles", "")
         descriptors = _lipinski_check(smiles)
