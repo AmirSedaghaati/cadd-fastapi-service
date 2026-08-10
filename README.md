@@ -34,8 +34,10 @@ nothing disappears silently from your dataset.
 
 ### POST /screen-library
 Accepts a compound library as JSON. Applies Lipinski Rule of 
-Five filtering via RDKit. Returns the filtered, ranked compound 
-list. Affinity threshold is configurable per request.
+Five screening via RDKit to each compound. Returns the full 
+list annotated with pass/fail status for each compound — 
+nothing is removed from the response. Rule of Five thresholds 
+are currently fixed, not configurable per request.
 
 ### POST /parse-docking-results
 Accepts AutoDock Vina output as JSON. Parses binding affinities. 
@@ -85,8 +87,7 @@ Current progress:
 - [x] /screen-library endpoint
 - [ ] /parse-docking-results endpoint
 - [ ] Docker Compose full stack with PostgreSQL
-- [ ] Integration test suite
-
+- [x] Integration test suite
 ---
 
 ## Related repositories
@@ -100,5 +101,5 @@ Current progress:
 
 Amir Sedaghati  
 aamirsedaghati@gmail.com  
-linkedin.com/in/amir-sedaghati  
+linkedin.com/in/amir-sedaghati-475805139
 ORCID: 0009-0002-6445-0329
