@@ -53,7 +53,7 @@ or downstream reporting.
 | Containerisation | Docker + Docker Compose | ✅ in use |
 | External data | PubChem REST API | ✅ in use |
 | Language | Python 3.11 | ✅ in use |
-| Cheminformatics | RDKit | 🚧 planned for `/screen-library` |
+| Cheminformatics | RDKit | ✅ in use |
 | Database | PostgreSQL | 🚧 planned for persistence layer |
 
 ---
