@@ -3,9 +3,7 @@
 A deployable REST API that wraps a computational drug discovery 
 screening pipeline. Compound descriptor retrieval, Lipinski 
 filtering, and docking result parsing, each exposed as an 
-independent HTTP endpoint, containerised with Docker, and 
-ready to integrate with any automation layer (n8n, Airflow, 
-or a direct HTTP call from your lab's data system).
+independent HTTP endpoint, containerised with Docker.
 
 ---
 
@@ -16,9 +14,8 @@ that built them and nowhere else. When a wet-lab team needs
 results, someone has to run the script manually, export a CSV, 
 and send it by email.
 
-This service removes that bottleneck. Each pipeline stage is an 
-API endpoint. Your automation tool calls the endpoint, gets 
-structured JSON back, and passes it to the next step — no manual 
+Your automation tool calls the endpoint, gets 
+structured JSON back, and passes it to the next step, no manual 
 intervention, no environment setup on the client side.
 
 ---
