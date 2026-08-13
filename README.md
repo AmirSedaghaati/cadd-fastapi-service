@@ -36,11 +36,10 @@ list annotated with pass/fail status for each compound —
 nothing is removed from the response. Rule of Five thresholds 
 are currently fixed, not configurable per request.
 
-### POST /parse-docking-results
-Accepts AutoDock Vina output as JSON. Parses binding affinities. 
-Applies a configurable hit threshold. Returns ranked hits with 
-pass/fail flags as structured JSON ready for database insertion 
-or downstream reporting.
+### POST /parse-docking-results *(planned — not yet implemented)*
+Will accept AutoDock Vina output as JSON, parse binding affinities, apply a
+configurable hit threshold, and return ranked hits as structured JSON. See
+Project Status below for current progress.
 
 ---
 
