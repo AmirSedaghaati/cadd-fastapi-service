@@ -95,7 +95,7 @@ Current progress:
 
 ## Contact
 
-Amir Sedaghati  
+**Amir Sedaghati**  
 aamirsedaghati@gmail.com  
-linkedin.com/in/amir-sedaghati
-ORCID: 0009-0002-6445-0329
+https://www.linkedin.com/in/amir-sedaghati/  
+https://orcid.org/0009-0002-6445-0329
