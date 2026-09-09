@@ -97,5 +97,5 @@ Current progress:
 
 Amir Sedaghati  
 aamirsedaghati@gmail.com  
-linkedin.com/in/amir-sedaghati-475805139
+linkedin.com/in/amir-sedaghati
 ORCID: 0009-0002-6445-0329
