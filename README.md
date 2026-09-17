@@ -14,9 +14,8 @@ that built them and nowhere else. When a wet-lab team needs
 results, someone has to run the script manually, export a CSV, 
 and send it by email.
 
-Your automation tool calls the endpoint, gets 
-structured JSON back, and passes it to the next step, no manual 
-intervention, no environment setup on the client side.
+Your automation tool calls the endpoint and gets structured JSON
+back — no manual steps, no environment setup on the client side.
 
 ---
 
